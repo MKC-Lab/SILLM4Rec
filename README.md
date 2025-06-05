@@ -1,273 +1,273 @@
 # SILLM4Rec: Sequential Item Recommendation with Large Language Models
 
-本项目实现了基于大语言模型的序列化商品推荐系统，支持监督微调(SFT)和直接偏好优化(DPO)两种训练方式。
+This project implements a sequential item recommendation system based on Large Language Models, supporting both Supervised Fine-Tuning (SFT) and Direct Preference Optimization (DPO) training methods.
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 1. 环境设置
+### 1. Environment Setup
 
-#### 1.1 系统要求
+#### 1.1 System Requirements
 
 - **Python**: 3.10
 - **CUDA**: 12.1
-- **GPU**: 建议使用带有大显存的 GPU（例如A100 40G）
+- **GPU**: Recommended to use GPU with large memory (e.g., A100 40G)
 
-#### 1.2 安装依赖
+#### 1.2 Installing Dependencies
 
-**重要**: 请按照以下顺序安装依赖以确保兼容性。
+**Important**: Please install dependencies in the following order to ensure compatibility.
 
-首先安装 PyTorch GPU 版本 (CUDA 12.1)：
+First install PyTorch GPU version (CUDA 12.1):
 
 ```bash
 pip install torch==2.1.0+cu121 torchvision==0.16.0+cu121 torchaudio==2.1.0+cu121 --index-url https://download.pytorch.org/whl/cu121
 ```
 
-然后安装其他依赖：
+Then install other dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-验证 CUDA 是否可用：
+Verify CUDA availability:
 
 ```bash
 python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}, Device count: {torch.cuda.device_count()}')"
 ```
 
-### 2. 数据准备
+### 2. Data Preparation
 
-#### 2.1 下载原始数据
+#### 2.1 Download Raw Data
 
-前往 [Amazon Review Data 2023](https://amazon-reviews-2023.github.io/) 网站下载以下文件(5 core)：
+Visit the [Amazon Review Data 2023](https://amazon-reviews-2023.github.io/) website to download the following files (5 core):
 
-- **元数据文件**: `meta_[CATEGORY].jsonl` (如 `meta_Baby_Products.jsonl`)
-- **评论数据文件**: `[CATEGORY].jsonl` (如 `Baby_Products.jsonl`)  
-- **交互数据文件**: `[CATEGORY].test.csv` (如 `Baby_Products.test.csv`)
+- **Metadata files**: `meta_[CATEGORY].jsonl` (e.g., `meta_Baby_Products.jsonl`)
+- **Review data files**: `[CATEGORY].jsonl` (e.g., `Baby_Products.jsonl`)  
+- **Interaction data files**: `[CATEGORY].test.csv` (e.g., `Baby_Products.test.csv`)
 
-将下载的文件放置在 `raw_data/` 目录下。
+Place the downloaded files in the `raw_data/` directory.
 
-#### 2.2 数据预处理
+#### 2.2 Data Preprocessing
 
-使用 `raw_data_process.ipynb` 处理原始数据：
+Use `raw_data_process.ipynb` to process the raw data:
 
-1. 打开 `raw_data_process.ipynb`
-2. 根据您的数据类别修改文件路径
-3. 运行所有单元格生成处理后的数据
+1. Open `raw_data_process.ipynb`
+2. Modify file paths according to your data category
+3. Run all cells to generate processed data
 
-预处理步骤包括：
+Preprocessing steps include:
 
-- 生成用户和物品的映射关系
-- 转换 JSONL 格式为 Parquet 格式
-- 筛选高质量的用户交互数据
-- 生成训练集和测试集
+- Generate user and item mapping relationships
+- Convert JSONL format to Parquet format
+- Filter high-quality user interaction data
+- Generate training and test sets
 
-### 3. 训练数据生成
+### 3. Training Data Generation
 
-使用 `training_data_process.ipynb` 生成训练数据和评估结果：
+Use `training_data_process.ipynb` to generate training data and evaluation results:
 
-1. 配置 API 密钥和基础 URL（用于调用大语言模型）
-2. 运行图像描述生成（将商品图片转换为文本描述）
-3. 生成用户偏好摘要
-4. 创建候选商品排序任务
-5. 生成 SFT 和 DPO 训练数据
+1. Configure API keys and base URL (for calling large language models)
+2. Run image description generation (convert product images to text descriptions)
+3. Generate user preference summaries
+4. Create candidate product ranking tasks
+5. Generate SFT and DPO training data
 
-主要功能：
+Main features:
 
-- **图像到文本转换**: 使用视觉语言模型描述商品图片
-- **用户偏好分析**: 基于历史交互生成用户偏好摘要
-- **排序任务生成**: 创建商品排序任务和对应的标准答案
-- **训练数据构建**: 生成适用于不同训练方法的数据格式
+- **Image-to-text conversion**: Use vision-language models to describe product images
+- **User preference analysis**: Generate user preference summaries based on historical interactions
+- **Ranking task generation**: Create product ranking tasks and corresponding standard answers
+- **Training data construction**: Generate data formats suitable for different training methods
 
-### 4. 模型准备
+### 4. Model Preparation
 
-#### 4.1 下载基础模型
+#### 4.1 Download Base Model
 
-在开始训练前，需要先下载并准备基础模型：
+Before starting training, you need to download and prepare the base model:
 
 ```bash
-# 下载模型到本地目录，例如：
+# Download model to local directory, for example:
 # models/DeepSeek-R1-Distill-Qwen-7B/
-# 或使用 Hugging Face Hub 下载
+# Or download using Hugging Face Hub
 ```
 
-确保模型文件完整并放置在适当的目录中。
+Ensure model files are complete and placed in the appropriate directory.
 
-### 5. 模型训练
+### 5. Model Training
 
-#### 5.1 监督微调 (SFT)
+#### 5.1 Supervised Fine-Tuning (SFT)
 
-使用 `SFT.ipynb` 进行监督微调：
+Use `SFT.ipynb` for supervised fine-tuning:
 
-1. 在 notebook 中配置基础模型路径
-2. 加载预训练模型（如 DeepSeek-R1-Distill-Qwen-7B）
-3. 配置 LoRA 参数
-4. 加载 SFT 训练数据
-5. 开始训练
+1. Configure base model path in the notebook
+2. Load pretrained model (e.g., DeepSeek-R1-Distill-Qwen-7B)
+3. Configure LoRA parameters
+4. Load SFT training data
+5. Start training
 
-特性：
+Features:
 
-- 支持 4bit 量化加载
-- 使用 LoRA 高效微调
-- 自动梯度检查点
-- 支持多种优化器
+- Support 4-bit quantization loading
+- Use LoRA for efficient fine-tuning
+- Automatic gradient checkpointing
+- Support multiple optimizers
 
-#### 5.2 直接偏好优化 (DPO)
+#### 5.2 Direct Preference Optimization (DPO)
 
-使用 `DPO.ipynb` 进行偏好优化：
+Use `DPO.ipynb` for preference optimization:
 
-1. 加载 SFT 微调后的模型
-2. 配置 DPO 训练参数
-3. 加载 DPO 训练数据（包含 chosen 和 rejected 样本）
-4. 开始 DPO 训练
+1. Load the SFT fine-tuned model
+2. Configure DPO training parameters
+3. Load DPO training data (including chosen and rejected samples)
+4. Start DPO training
 
-特性：
+Features:
 
-- 基于 SFT 模型进行进一步优化
-- 自动处理偏好对数据
-- 支持自定义 β 参数
-- 内存效率优化
+- Further optimization based on SFT model
+- Automatic handling of preference pair data
+- Support custom β parameter
+- Memory efficiency optimization
 
-### 6. 模型部署
+### 6. Model Deployment
 
-#### 6.1 安装 vLLM
+#### 6.1 Install vLLM
 
-训练完成后，推荐使用 vLLM 进行高效推理部署：
+After training is complete, it's recommended to use vLLM for efficient inference deployment:
 
 ```bash
 pip install vllm
 ```
 
-#### 6.2 启动推理服务
+#### 6.2 Start Inference Service
 
-使用以下命令启动 vLLM 推理服务：
+Use the following command to start the vLLM inference service:
 
 ```bash
-vllm serve {模型位置} --max_model_len=4096 --override-generation-config "{\"temperature\": 0.2}"
+vllm serve {model_location} --max_model_len=4096 --override-generation-config "{\"temperature\": 0.2}"
 ```
 
-示例：
+Examples:
 
 ```bash
-# 部署 SFT 模型
+# Deploy SFT model
 vllm serve ./new_model/qwen-sft --max_model_len=4096 --override-generation-config "{\"temperature\": 0.2}"
 
-# 部署 DPO 模型
+# Deploy DPO model
 vllm serve ./new_model/qwen-dpo --max_model_len=4096 --override-generation-config "{\"temperature\": 0.2}"
 ```
 
-#### 6.3 使用推理服务
+#### 6.3 Using Inference Service
 
-vLLM 服务启动后，可以通过 HTTP API 进行推理调用：
+After the vLLM service is started, you can make inference calls through the HTTP API:
 
 ```python
 api_key = "EMPTY"
 base_url = "http://localhost:8000/v1"
 ```
 
-## 📁 项目结构
+## 📁 Project Structure
 
 ```text
 SILLM4Rec/
-├── raw_data/                    # 原始数据目录
-│   ├── meta_[CATEGORY].jsonl    # 商品元数据
-│   ├── [CATEGORY].jsonl         # 用户评论数据
-│   └── [CATEGORY].test.csv      # 交互测试数据
-├── [category]_data/             # 处理后的数据目录
-│   ├── train/                   # 训练数据
-│   └── test/                    # 测试数据
-├── raw_data_process.ipynb       # 数据预处理
-├── training_data_process.ipynb  # 训练数据生成
-├── SFT.ipynb                    # 监督微调
-├── DPO.ipynb                    # 直接偏好优化
-├── matrix.py                    # 评估指标计算
-├── requirements.txt             # 依赖包列表
-└── README.md                    # 项目说明
+├── raw_data/                    # Raw data directory
+│   ├── meta_[CATEGORY].jsonl    # Product metadata
+│   ├── [CATEGORY].jsonl         # User review data
+│   └── [CATEGORY].test.csv      # Interaction test data
+├── [category]_data/             # Processed data directory
+│   ├── train/                   # Training data
+│   └── test/                    # Test data
+├── raw_data_process.ipynb       # Data preprocessing
+├── training_data_process.ipynb  # Training data generation
+├── SFT.ipynb                    # Supervised fine-tuning
+├── DPO.ipynb                    # Direct preference optimization
+├── matrix.py                    # Evaluation metrics calculation
+├── requirements.txt             # Dependencies list
+└── README.md                    # Project documentation
 ```
 
-## 🔧 配置说明
+## 🔧 Configuration
 
-### API 配置
+### API Configuration
 
-在 `training_data_process.ipynb` 中配置您的 LLM API：
+Configure your LLM API in `training_data_process.ipynb`:
 
 ```python
 api_key = "your_api_key_here"
 base_url = "your_base_url_here"
 ```
 
-### 模型路径配置
+### Model Path Configuration
 
-根据您的模型存放位置修改各个 notebook 中的路径：
+Modify paths in each notebook according to your model storage location:
 
 ```python
-# SFT.ipynb 中 - 基础模型路径
-model_name = "/path/to/your/base/model"  # 例如: "./models/DeepSeek-R1-Distill-Qwen-7B"
+# In SFT.ipynb - Base model path
+model_name = "/path/to/your/base/model"  # Example: "./models/DeepSeek-R1-Distill-Qwen-7B"
 
-# DPO.ipynb 中 - SFT 微调后的模型路径  
-model_name = "/path/to/your/sft/model"   # 例如: "./new_model/qwen-sft"
+# In DPO.ipynb - SFT fine-tuned model path  
+model_name = "/path/to/your/sft/model"   # Example: "./new_model/qwen-sft"
 
-# 训练输出路径
-output_dir = "/path/to/output"           # 例如: "./outputs"
-save_dir = "/path/to/save/model"        # 例如: "./new_model/qwen-sft"
+# Training output path
+output_dir = "/path/to/output"           # Example: "./outputs"
+save_dir = "/path/to/save/model"        # Example: "./new_model/qwen-sft"
 ```
 
-### 目录结构建议
+### Recommended Directory Structure
 
 ```text
 SILLM4Rec/
-├── models/                      # 基础模型目录
+├── models/                      # Base models directory
 │   └── DeepSeek-R1-Distill-Qwen-7B/
-├── new_model/                   # 微调后模型目录
-│   ├── qwen-sft/               # SFT 模型
-│   └── qwen-dpo/               # DPO 模型
-├── outputs/                     # 训练输出目录
-└── ...                         # 其他项目文件
+├── new_model/                   # Fine-tuned models directory
+│   ├── qwen-sft/               # SFT model
+│   └── qwen-dpo/               # DPO model
+├── outputs/                     # Training output directory
+└── ...                         # Other project files
 ```
 
-## 📊 评估指标
+## 📊 Evaluation Metrics
 
-项目支持以下评估指标：
+The project supports the following evaluation metrics:
 
-- **NDCG@K**: 归一化折扣累积增益
-- **Valid Rate**: 有效推荐率
+- **NDCG@K**: Normalized Discounted Cumulative Gain
+- **Valid Rate**: Valid recommendation rate
 
-## 🛠️ 故障排除
+## 🛠️ Troubleshooting
 
-### 环境相关问题
+### Environment Issues
 
-1. **Python 版本不兼容**
-   - 确保使用 Python 3.10
-   - 检查虚拟环境配置
+1. **Python Version Incompatibility**
+   - Ensure you're using Python 3.10
+   - Check virtual environment configuration
 
-2. **CUDA 版本问题**
-   - 确认系统安装了 CUDA 12.1
-   - 使用 `nvidia-smi` 检查 GPU 状态
-   - 验证 PyTorch CUDA 支持：`python -c "import torch; print(torch.cuda.is_available())"`
+2. **CUDA Version Issues**
+   - Confirm system has CUDA 12.1 installed
+   - Use `nvidia-smi` to check GPU status
+   - Verify PyTorch CUDA support: `python -c "import torch; print(torch.cuda.is_available())"`
 
-### 常见问题
+### Common Issues
 
-1. **CUDA 内存不足**
-   - 减小 `per_device_train_batch_size`
-   - 启用梯度累积
-   - 使用 4bit 量化
+1. **CUDA Out of Memory**
+   - Reduce `per_device_train_batch_size`
+   - Enable gradient accumulation
+   - Use 4-bit quantization
 
-2. **数据格式错误**
-   - 检查原始数据文件完整性
-   - 确认文件路径正确
-   - 重新运行数据预处理
+2. **Data Format Errors**
+   - Check raw data file integrity
+   - Confirm file paths are correct
+   - Re-run data preprocessing
 
-3. **API 调用失败**
-   - 验证 API 密钥和 URL
-   - 检查网络连接
-   - 调整请求频率
+3. **API Call Failures**
+   - Verify API key and URL
+   - Check network connection
+   - Adjust request frequency
 
-4. **依赖安装问题**
-   - 按照推荐顺序安装依赖
-   - 使用虚拟环境避免版本冲突
-   - 如果 `unsloth` 安装失败，尝试从源码安装
+4. **Dependency Installation Issues**
+   - Install dependencies in recommended order
+   - Use virtual environment to avoid version conflicts
+   - If `unsloth` installation fails, try installing from source
 
-5. **vLLM 部署问题**
-   - 确认模型路径正确
-   - 检查模型文件完整性
-   - 调整 `max_model_len` 参数适应显存大小
-   - 如果启动失败，检查端口是否被占用
+5. **vLLM Deployment Issues**
+   - Confirm model path is correct
+   - Check model file integrity
+   - Adjust `max_model_len` parameter to fit GPU memory
+   - If startup fails, check if port is already in use
