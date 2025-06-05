@@ -1,7 +1,5 @@
 # SILLM4Rec: Sequential Item Recommendation with Large Language Models
 
-This project implements a sequential item recommendation system based on Large Language Models, supporting both Supervised Fine-Tuning (SFT) and Direct Preference Optimization (DPO) training methods.
-
 ## 🚀 Quick Start
 
 ### 1. Environment Setup
