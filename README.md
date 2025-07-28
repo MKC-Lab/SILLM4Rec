@@ -1,4 +1,4 @@
-# SILLM4Rec: Sequential Item Recommendation with Large Language Models
+# SILLM4Rec: Self-Improving with Chain of Thought Enhanced Preference Optimization for Multimodal Recommendation
 
 ## 🚀 Quick Start
 
